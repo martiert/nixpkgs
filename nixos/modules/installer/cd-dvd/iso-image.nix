@@ -314,6 +314,11 @@ let
       terminal_output gfxterm
     }
 
+    ${
+      if config.isoImage.deviceTree != null then
+        ''devicetree (\$root)/${config.isoImage.deviceTree}''
+      else ""
+    }
 
     # If the parameter iso_path is set, append the findiso parameter to the kernel
     # line. We need this to allow the nixos iso to be booted from grub directly.
@@ -574,6 +579,14 @@ in
       type = types.nullOr (types.either types.path types.package);
       description = lib.mdDoc ''
         The grub2 theme used for UEFI boot.
+      '';
+    };
+
+    isoImage.deviceTree = mkOption {
+      default = null;
+      type = types.nullOr types.str;
+      description = lib.mdDoc ''
+        The devicetree for grub to load
       '';
     };
 
