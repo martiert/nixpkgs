@@ -24,6 +24,9 @@ let
         # Name appended to menuentry defaults to params if no specific name given.
         option.name or (if option ? params then "(${option.params})" else "")
         }' ${if option ? class then " --class ${option.class}" else ""} {
+
+          ${config.boot.loader.grub.extraPerEntryConfig}
+
           linux ${defaults.image} \''${isoboot} ${defaults.params} ${
             option.params or ""
           }
