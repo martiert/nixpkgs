@@ -181,6 +181,7 @@ let
 
     insmod gfxterm
     insmod png
+
     set gfxpayload=keep
     set gfxmode=${concatStringsSep "," [
       # GRUB will use the first valid mode listed here.
@@ -237,6 +238,8 @@ let
         set menu_color_highlight=white/blue
       fi
     ''}
+
+    ${config.boot.loader.grub.extraConfig}
   '';
 
   # The EFI boot image.
