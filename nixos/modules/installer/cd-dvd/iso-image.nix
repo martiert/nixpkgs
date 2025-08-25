@@ -17,16 +17,21 @@ let
       image,
       params,
       initrd,
+      extraCommands,
     }:
     ''
       menuentry '${name}' --class ${class} {
         # Fallback to UEFI console for boot, efifb sometimes has difficulties.
         terminal_output console
+        ${extraCommands}
 
         linux ${image} \''${isoboot} ${params}
         initrd ${initrd}
       }
     '';
+
+  extraCommands = []
+    ++ lib.optional (config.hardware.deviceTree.enable && config.hardware.deviceTree.name != null) "devicetree /boot/dtbs/${config.hardware.deviceTree.name}";
 
   # Builds all menu entries
   buildMenuGrub2 =
@@ -47,6 +52,7 @@ let
         params = "init=${cfg.system.build.toplevel}/init ${toString cfg.boot.kernelParams} ${toString params}";
         image = "/boot/${cfg.boot.kernelPackages.kernel + "/" + cfg.system.boot.loader.kernelFile}";
         initrd = "/boot/${cfg.system.build.initialRamdisk + "/" + cfg.system.boot.loader.initrdFile}";
+        extraCommands = lib.concatLines extraCommands;
         class = "installer";
       };
     in
@@ -1017,6 +1023,12 @@ in
         {
           source = config.isoImage.grubTheme;
           target = "/EFI/BOOT/grub-theme";
+        }
+      ]
+      ++ lib.optionals (config.hardware.deviceTree.enable && config.hardware.deviceTree.name != null) [
+        {
+          source = "${config.boot.kernelPackages.kernel}/dtbs/${config.hardware.deviceTree.name}";
+          target = "/boot/dtbs/${config.hardware.deviceTree.name}";
         }
       ];
 
